@@ -3,6 +3,7 @@ package liquid
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io"
 	"strconv"
 	"strings"
@@ -54,7 +55,7 @@ func TestBasicEngine_ParseAndRenderString(t *testing.T) {
 		t.Run(strconv.Itoa(i+2), func(t *testing.T) {
 			out, err := engine.ParseAndRenderString(test.in, testBindings)
 			require.Errorf(t, err, test.in)
-			require.Equalf(t, "", out, test.in)
+			require.Emptyf(t, out, test.in)
 		})
 	}
 }
@@ -154,4 +155,25 @@ func TestEngine_ParseTemplateAndCache(t *testing.T) {
 	result, err := eng.ParseAndRender(templateB, Bindings{})
 	require.NoError(t, err)
 	require.Equal(t, "Foo, Bar", string(result))
+}
+
+type MockTemplateStore struct{}
+
+func (tl *MockTemplateStore) ReadTemplate(filename string) ([]byte, error) {
+	template := []byte(fmt.Sprintf("Message Text: {{ message.Text }} from: %v.", filename))
+	return template, nil
+}
+
+func Test_template_store(t *testing.T) {
+	template := []byte(`{% include "template.liquid" %}`)
+	mockstore := &MockTemplateStore{}
+	params := map[string]any{
+		"message": testStruct{
+			Text: "filename",
+		},
+	}
+	engine := NewEngine()
+	engine.RegisterTemplateStore(mockstore)
+	out, _ := engine.ParseAndRenderString(string(template), params)
+	require.Equal(t, "Message Text: filename from: template.liquid.", out)
 }

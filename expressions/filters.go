@@ -64,7 +64,9 @@ func isClosureInterfaceType(t reflect.Type) bool {
 func (ctx *context) ApplyFilter(name string, receiver valueFn, params []valueFn) (any, error) {
 	filter, ok := ctx.filters[name]
 	if !ok {
-		panic(UndefinedFilter(name))
+		// TODO: gather syntax errors and return them as a single error
+		return nil, nil
+		//panic(UndefinedFilter(name))
 	}
 	fr := reflect.ValueOf(filter)
 	args := []any{receiver(ctx).Interface()}
@@ -72,7 +74,9 @@ func (ctx *context) ApplyFilter(name string, receiver valueFn, params []valueFn)
 		if i+1 < fr.Type().NumIn() && isClosureInterfaceType(fr.Type().In(i+1)) {
 			expr, err := Parse(param(ctx).Interface().(string))
 			if err != nil {
-				panic(err)
+				// TODO: gather syntax errors and return them as a single error
+				return nil, nil
+				//panic(err)
 			}
 			args = append(args, closure{expr, ctx})
 		} else {

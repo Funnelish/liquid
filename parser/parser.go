@@ -110,7 +110,9 @@ func (c *Config) parseTokens(tokens []Token) (ASTNode, Error) { //nolint: gocycl
 		}
 	}
 	if bn != nil {
-		return nil, Errorf(bn, "unterminated %q block", bn.Name)
+		// TODO: gather syntax errors and return them as a single error
+		return root, nil
+		//return nil, Errorf(bn, "unterminated %q block", bn.Name)
 	}
 	return root, nil
 }

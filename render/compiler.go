@@ -2,6 +2,7 @@ package render
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/osteele/liquid/parser"
 )
@@ -61,7 +62,9 @@ func (c *Config) compileNode(n parser.ASTNode) (Node, parser.Error) {
 			}
 			return &TagNode{n.Token, f}, nil
 		}
-		return nil, parser.Errorf(n, "undefined tag %q", n.Name)
+		// TODO: gather syntax errors and return them as a single error
+		return &TagNode{n.Token, func(io.Writer, Context) error { return nil }}, nil
+		//return nil, parser.Errorf(n, "undefined tag %q", n.Name)
 	case *parser.ASTText:
 		return &TextNode{n.Token}, nil
 	case *parser.ASTObject:

@@ -1,0 +1,50 @@
+<h1>{{ product.name }}</h1>
+
+<p>Price: {{ product.price }}</p>
+
+<!-- Broken filter -->
+<p>Discounted: {{ product.price | minus }}</p>
+
+<!-- Invalid syntax -->
+<p>{{ user..name }}</p>
+
+<!-- Valid loop -->
+<ul>
+  {% for tag in product.tags %}
+    <li>{{ tag }}</li>
+  {% endfor %}
+</ul>
+
+<!-- Broken expression -->
+<p>{{ 1 + * 2 }}</p>
+
+<!-- Undefined variable -->
+<p>{{ undefinedVar }}</p>
+
+<!-- Valid block -->
+{% if product.price > 100 %}
+  <strong>Premium product</strong>
+{% endif %}
+
+<!-- Filter error -->
+<p>{{ product.name | unknown_filter }}</p>
+
+<h1>{{ product.name }}</h1>
+
+{% if user %}
+  <p>Welcome, {{ user.name }}!</p>
+<!-- forgot {% endif %} -->
+
+{% raw %}
+  <div>
+    {% if skipped_inside_raw %}
+  </div>
+{% endraw %}
+
+{% comment %}
+  {% if something %}
+    This should not be parsed.
+  {% endcomment %}
+<!-- ❌ 'endif' is missing here and 'endcomment' is misplaced -->
+
+{{ user.email | format_email }}  <!-- ❌ possibly undefined filter -->

@@ -51,11 +51,9 @@ func (c *Config) parseTokens(tokens []Token) (ASTNode, Error) { //nolint: gocycl
 		case tok.Type == ObjTokenType:
 			expr, err := expressions.Parse(tok.Args)
 			if err != nil {
-				if _, ok := err.(expressions.SyntaxError); ok {
-					// TODO: gather syntax errors and return them as a single error
-					continue
-				}
-				return nil, WrapError(err, tok)
+				// TODO: gather syntax errors and return them as a single error
+				continue
+				//return nil, WrapError(err, tok)
 			}
 			*ap = append(*ap, &ASTObject{tok, expr})
 		case tok.Type == TextTokenType:

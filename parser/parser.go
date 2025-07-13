@@ -2,9 +2,6 @@
 package parser
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/Funnelish/liquid/expressions"
 )
 
@@ -51,14 +48,18 @@ func (c *Config) parseTokens(tokens []Token) (ASTNode, Error) { //nolint: gocycl
 		case tok.Type == ObjTokenType:
 			expr, err := expressions.Parse(tok.Args)
 			if err != nil {
-				return nil, WrapError(err, tok)
+				// TODO: gather syntax errors and return them as a single error
+				continue
+				//return nil, WrapError(err, tok)
 			}
 			*ap = append(*ap, &ASTObject{tok, expr})
 		case tok.Type == TextTokenType:
 			*ap = append(*ap, &ASTText{Token: tok})
 		case tok.Type == TagTokenType:
 			if g == nil {
-				return nil, Errorf(tok, "Grammar field is nil")
+				// TODO: gather syntax errors and return them as a single error
+				continue
+				//return nil, Errorf(tok, "Grammar field is nil")
 			}
 			if cs, ok := g.BlockSyntax(tok.Name); ok {
 				switch {
@@ -69,11 +70,13 @@ func (c *Config) parseTokens(tokens []Token) (ASTNode, Error) { //nolint: gocycl
 					rawTag = &ASTRaw{}
 					*ap = append(*ap, rawTag)
 				case cs.RequiresParent() && (sd == nil || !cs.CanHaveParent(sd)):
-					suffix := ""
-					if sd != nil {
-						suffix = "; immediate parent is " + sd.TagName()
-					}
-					return nil, Errorf(tok, "%s not inside %s%s", tok.Name, strings.Join(cs.ParentTags(), " or "), suffix)
+					// TODO: gather syntax errors and return them as a single error
+					continue
+					// suffix := ""
+					// if sd != nil {
+					// 	suffix = "; immediate parent is " + sd.TagName()
+					// }
+					// return nil, Errorf(tok, "%s not inside %s%s", tok.Name, strings.Join(cs.ParentTags(), " or "), suffix)
 				case cs.IsBlockStart():
 					push := func() {
 						stack = append(stack, frame{syntax: sd, node: bn, ap: ap})
@@ -94,7 +97,9 @@ func (c *Config) parseTokens(tokens []Token) (ASTNode, Error) { //nolint: gocycl
 					}
 					pop()
 				default:
-					panic(fmt.Errorf("block type %q", tok.Name))
+					// TODO: gather syntax errors and return them as a single error
+					continue
+					//panic(fmt.Errorf("block type %q", tok.Name))
 				}
 			} else {
 				*ap = append(*ap, &ASTTag{tok})
@@ -106,7 +111,9 @@ func (c *Config) parseTokens(tokens []Token) (ASTNode, Error) { //nolint: gocycl
 		}
 	}
 	if bn != nil {
-		return nil, Errorf(bn, "unterminated %q block", bn.Name)
+		// TODO: gather syntax errors and return them as a single error
+		return root, nil
+		//return nil, Errorf(bn, "unterminated %q block", bn.Name)
 	}
 	return root, nil
 }

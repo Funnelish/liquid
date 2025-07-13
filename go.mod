@@ -1,6 +1,6 @@
 module github.com/Funnelish/liquid
 
-go 1.24
+go 1.23
 
 require (
 	github.com/osteele/tuesday v1.0.3

@@ -2,6 +2,8 @@ module github.com/Funnelish/liquid
 
 go 1.23
 
+toolchain go1.23.11
+
 require (
 	github.com/osteele/tuesday v1.0.3
 	github.com/stretchr/testify v1.10.0

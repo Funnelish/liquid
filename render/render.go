@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"time"
 
-	"github.com/osteele/liquid/parser"
+	"github.com/Funnelish/liquid/parser"
 
-	"github.com/osteele/liquid/values"
+	"github.com/Funnelish/liquid/values"
 )
 
 // Render renders the render tree.

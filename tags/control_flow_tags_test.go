@@ -7,8 +7,8 @@ import (
 	"io"
 	"testing"
 
-	"github.com/osteele/liquid/parser"
-	"github.com/osteele/liquid/render"
+	"github.com/Funnelish/liquid/parser"
+	"github.com/Funnelish/liquid/render"
 	"github.com/stretchr/testify/require"
 )
 

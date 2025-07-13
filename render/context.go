@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/osteele/liquid/parser"
+	"github.com/Funnelish/liquid/parser"
 
-	"github.com/osteele/liquid/expressions"
+	"github.com/Funnelish/liquid/expressions"
 )
 
 // Context provides the rendering context for a tag renderer.

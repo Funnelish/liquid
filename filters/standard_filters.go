@@ -14,7 +14,7 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/osteele/liquid/values"
+	"github.com/Funnelish/liquid/values"
 	"github.com/osteele/tuesday"
 )
 

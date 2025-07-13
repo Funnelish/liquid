@@ -16,7 +16,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/osteele/liquid"
+	"github.com/Funnelish/liquid"
 )
 
 // for testing

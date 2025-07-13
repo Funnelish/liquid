@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/osteele/liquid/values"
+	"github.com/Funnelish/liquid/values"
 )
 
 func sortFilter(array []any, key any) []any {

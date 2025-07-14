@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/osteele/liquid/util"
 	"github.com/osteele/liquid/values"
 )
 
@@ -64,8 +65,8 @@ func isClosureInterfaceType(t reflect.Type) bool {
 func (ctx *context) ApplyFilter(name string, receiver valueFn, params []valueFn) (any, error) {
 	filter, ok := ctx.filters[name]
 	if !ok {
-		// TODO: gather syntax errors and return them as a single error
-		return nil, nil
+		return util.ErrorPlaceholder(-1, fmt.Sprintf(`undefined filter "%s"`, name)), nil
+		//return nil, nil
 		//panic(UndefinedFilter(name))
 	}
 	fr := reflect.ValueOf(filter)
@@ -74,8 +75,8 @@ func (ctx *context) ApplyFilter(name string, receiver valueFn, params []valueFn)
 		if i+1 < fr.Type().NumIn() && isClosureInterfaceType(fr.Type().In(i+1)) {
 			expr, err := Parse(param(ctx).Interface().(string))
 			if err != nil {
-				// TODO: gather syntax errors and return them as a single error
-				return nil, nil
+				return util.ErrorPlaceholder(-1, fmt.Sprintf(`error parsing filter parameter "%s"`, param(ctx).Interface())), nil
+				//return nil, nil
 				//panic(err)
 			}
 			args = append(args, closure{expr, ctx})

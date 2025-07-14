@@ -2,7 +2,11 @@
 package parser
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/osteele/liquid/expressions"
+	"github.com/osteele/liquid/util"
 )
 
 // Parse parses a source template. It returns an AST root, that can be compiled and evaluated.
@@ -48,7 +52,11 @@ func (c *Config) parseTokens(tokens []Token) (ASTNode, Error) { //nolint: gocycl
 		case tok.Type == ObjTokenType:
 			expr, err := expressions.Parse(tok.Args)
 			if err != nil {
-				// TODO: gather syntax errors and return them as a single error
+				*ap = append(*ap, &ASTText{
+					Token: Token{
+						Source: util.ErrorPlaceholder(tok.SourceLoc.LineNo, fmt.Sprintf(`invalid expression "%s"`, tok.Args)),
+					},
+				})
 				continue
 				//return nil, WrapError(err, tok)
 			}
@@ -57,7 +65,11 @@ func (c *Config) parseTokens(tokens []Token) (ASTNode, Error) { //nolint: gocycl
 			*ap = append(*ap, &ASTText{Token: tok})
 		case tok.Type == TagTokenType:
 			if g == nil {
-				// TODO: gather syntax errors and return them as a single error
+				*ap = append(*ap, &ASTText{
+					Token: Token{
+						Source: util.ErrorPlaceholder(tok.SourceLoc.LineNo, `Grammar field is nil`),
+					},
+				})
 				continue
 				//return nil, Errorf(tok, "Grammar field is nil")
 			}
@@ -70,7 +82,11 @@ func (c *Config) parseTokens(tokens []Token) (ASTNode, Error) { //nolint: gocycl
 					rawTag = &ASTRaw{}
 					*ap = append(*ap, rawTag)
 				case cs.RequiresParent() && (sd == nil || !cs.CanHaveParent(sd)):
-					// TODO: gather syntax errors and return them as a single error
+					*ap = append(*ap, &ASTText{
+						Token: Token{
+							Source: util.ErrorPlaceholder(tok.SourceLoc.LineNo, fmt.Sprintf(`%s not inside %s`, tok.Name, strings.Join(cs.ParentTags(), " or "))),
+						},
+					})
 					continue
 					// suffix := ""
 					// if sd != nil {
@@ -97,7 +113,11 @@ func (c *Config) parseTokens(tokens []Token) (ASTNode, Error) { //nolint: gocycl
 					}
 					pop()
 				default:
-					// TODO: gather syntax errors and return them as a single error
+					*ap = append(*ap, &ASTText{
+						Token: Token{
+							Source: util.ErrorPlaceholder(tok.SourceLoc.LineNo, fmt.Sprintf(`%s not inside %s`, tok.Name, strings.Join(cs.ParentTags(), " or "))),
+						},
+					})
 					continue
 					//panic(fmt.Errorf("block type %q", tok.Name))
 				}
@@ -111,7 +131,11 @@ func (c *Config) parseTokens(tokens []Token) (ASTNode, Error) { //nolint: gocycl
 		}
 	}
 	if bn != nil {
-		// TODO: gather syntax errors and return them as a single error
+		*ap = append(*ap, &ASTText{
+			Token: Token{
+				Source: util.ErrorPlaceholder(bn.Token.SourceLoc.LineNo, fmt.Sprintf(`unterminated %q block`, bn.Name)),
+			},
+		})
 		return root, nil
 		//return nil, Errorf(bn, "unterminated %q block", bn.Name)
 	}

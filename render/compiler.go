@@ -5,6 +5,7 @@ import (
 	"io"
 
 	"github.com/osteele/liquid/parser"
+	"github.com/osteele/liquid/util"
 )
 
 // Compile parses a source template. It returns an AST root, that can be evaluated.
@@ -41,7 +42,13 @@ func (c *Config) compileNode(n parser.ASTNode) (Node, parser.Error) {
 		if cd.parser != nil {
 			r, err := cd.parser(node)
 			if err != nil {
-				return nil, parser.WrapError(err, n)
+				line := node.Token.SourceLoc.LineNo
+				node.renderer = func(w io.Writer, ctx Context) error {
+					_, writeErr := io.WriteString(w, util.ErrorPlaceholder(line, err.Error()))
+					return writeErr
+				}
+				return &node, nil
+				// return nil, parser.WrapError(err, n)
 			}
 			node.renderer = r
 		}
@@ -62,8 +69,10 @@ func (c *Config) compileNode(n parser.ASTNode) (Node, parser.Error) {
 			}
 			return &TagNode{n.Token, f}, nil
 		}
-		// TODO: gather syntax errors and return them as a single error
-		return &TagNode{n.Token, func(io.Writer, Context) error { return nil }}, nil
+		return &TagNode{n.Token, func(w io.Writer, ctx Context) error {
+			_, err := io.WriteString(w, util.ErrorPlaceholder(n.Token.SourceLoc.LineNo, fmt.Sprintf("undefined tag %q", n.Name)))
+			return err
+		}}, nil
 		//return nil, parser.Errorf(n, "undefined tag %q", n.Name)
 	case *parser.ASTText:
 		return &TextNode{n.Token}, nil

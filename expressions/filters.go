@@ -71,6 +71,12 @@ func (ctx *context) ApplyFilter(name string, receiver valueFn, params []valueFn)
 	}
 	fr := reflect.ValueOf(filter)
 	args := []any{receiver(ctx).Interface()}
+
+	expectedArgs := fr.Type().NumIn()
+	actualArgs := 1 + len(params)
+	if actualArgs < expectedArgs {
+		return util.ErrorPlaceholder(-1, fmt.Sprintf("filter %q requires %d arguments but got %d", name, expectedArgs, actualArgs)), nil
+	}
 	for i, param := range params {
 		if i+1 < fr.Type().NumIn() && isClosureInterfaceType(fr.Type().In(i+1)) {
 			expr, err := Parse(param(ctx).Interface().(string))

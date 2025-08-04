@@ -217,12 +217,28 @@ func AddStandardFilters(fd FilterDictionary) { //nolint: gocyclo
 	fd.AddFilter("rstrip", func(s string) string {
 		return strings.TrimRightFunc(s, unicode.IsSpace)
 	})
+	// fd.AddFilter("truncate", func(s string, length func(int) int, ellipsis func(string) string) string {
+	// 	n := length(50)
+	// 	el := ellipsis("...")
+	// 	// runes aren't bytes; don't use slice
+	// 	re := regexp.MustCompile(fmt.Sprintf(`^(.{%d})..{%d,}`, n-len(el), len(el)))
+	// 	return re.ReplaceAllString(s, `$1`+el)
+	// })
 	fd.AddFilter("truncate", func(s string, length func(int) int, ellipsis func(string) string) string {
-		n := length(50)
-		el := ellipsis("...")
-		// runes aren't bytes; don't use slice
-		re := regexp.MustCompile(fmt.Sprintf(`^(.{%d})..{%d,}`, n-len(el), len(el)))
-		return re.ReplaceAllString(s, `$1`+el)
+		n := length(50)       // truncate length
+		el := ellipsis("...") // ellipsis string
+
+		runes := []rune(s)
+		if len(runes) <= n {
+			return s
+		}
+
+		limit := n - len([]rune(el))
+		if limit < 0 {
+			limit = 0
+		}
+
+		return string(runes[:limit]) + el
 	})
 	fd.AddFilter("truncatewords", func(s string, length func(int) int, ellipsis func(string) string) string {
 		el := ellipsis("...")

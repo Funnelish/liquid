@@ -217,12 +217,36 @@ func AddStandardFilters(fd FilterDictionary) { //nolint: gocyclo
 	fd.AddFilter("rstrip", func(s string) string {
 		return strings.TrimRightFunc(s, unicode.IsSpace)
 	})
+	// fd.AddFilter("truncate", func(s string, length func(int) int, ellipsis func(string) string) string {
+	// 	n := length(50)
+	// 	el := ellipsis("...")
+	// 	// runes aren't bytes; don't use slice
+	// 	re := regexp.MustCompile(fmt.Sprintf(`^(.{%d})..{%d,}`, n-len(el), len(el)))
+	// 	return re.ReplaceAllString(s, `$1`+el)
+	// })
 	fd.AddFilter("truncate", func(s string, length func(int) int, ellipsis func(string) string) string {
-		n := length(50)
-		el := ellipsis("...")
-		// runes aren't bytes; don't use slice
-		re := regexp.MustCompile(fmt.Sprintf(`^(.{%d})..{%d,}`, n-len(el), len(el)))
-		return re.ReplaceAllString(s, `$1`+el)
+		// Call length function with any int argument (e.g., 0)
+		// This returns the actual truncation length passed from the template (e.g., 90)
+		n := length(0)
+
+		// Call ellipsis function with any string argument (e.g., empty string)
+		// This returns the actual ellipsis string passed from the template (e.g., "-STOP-")
+		el := ellipsis("")
+
+		runes := []rune(s)
+		// If the string length is less than or equal to n, return original string
+		if len(runes) <= n {
+			return s
+		}
+
+		// Calculate limit for truncation considering length of ellipsis string
+		limit := n
+		if limit < 0 {
+			limit = 0
+		}
+
+		// Return truncated string plus ellipsis
+		return string(runes[:limit]) + el
 	})
 	fd.AddFilter("truncatewords", func(s string, length func(int) int, ellipsis func(string) string) string {
 		el := ellipsis("...")

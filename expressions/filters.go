@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/osteele/liquid/util"
-	"github.com/osteele/liquid/values"
+	"github.com/Funnelish/liquid/util"
+	"github.com/Funnelish/liquid/values"
 )
 
 // An InterpreterError is an error during expression interpretation.

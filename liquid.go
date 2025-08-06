@@ -8,8 +8,8 @@ The liquid package itself is versioned in gopkg.in. Subpackages have no compatib
 package liquid
 
 import (
-	"github.com/osteele/liquid/render"
-	"github.com/osteele/liquid/tags"
+	"github.com/Funnelish/liquid/render"
+	"github.com/Funnelish/liquid/tags"
 )
 
 // Bindings is a map of variable names to values.

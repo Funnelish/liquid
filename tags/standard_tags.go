@@ -4,8 +4,8 @@ package tags
 import (
 	"io"
 
-	"github.com/osteele/liquid/expressions"
-	"github.com/osteele/liquid/render"
+	"github.com/Funnelish/liquid/expressions"
+	"github.com/Funnelish/liquid/render"
 )
 
 // AddStandardTags defines the standard Liquid tags.

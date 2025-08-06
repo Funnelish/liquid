@@ -3,9 +3,9 @@ package tags
 import (
 	"io"
 
-	e "github.com/osteele/liquid/expressions"
-	"github.com/osteele/liquid/render"
-	"github.com/osteele/liquid/values"
+	e "github.com/Funnelish/liquid/expressions"
+	"github.com/Funnelish/liquid/render"
+	"github.com/Funnelish/liquid/values"
 )
 
 type caseInterpreter interface {

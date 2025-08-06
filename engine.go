@@ -3,9 +3,9 @@ package liquid
 import (
 	"io"
 
-	"github.com/osteele/liquid/filters"
-	"github.com/osteele/liquid/render"
-	"github.com/osteele/liquid/tags"
+	"github.com/Funnelish/liquid/filters"
+	"github.com/Funnelish/liquid/render"
+	"github.com/Funnelish/liquid/tags"
 )
 
 // An Engine parses template source into renderable text.

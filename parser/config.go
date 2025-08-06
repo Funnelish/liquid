@@ -1,6 +1,6 @@
 package parser
 
-import "github.com/osteele/liquid/expressions"
+import "github.com/Funnelish/liquid/expressions"
 
 // A Config holds configuration information for parsing and rendering.
 type Config struct {

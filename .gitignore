@@ -2,3 +2,6 @@
 *.out
 /liquid
 *.test
+.idea
+vendor
+go.sum

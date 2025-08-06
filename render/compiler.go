@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/osteele/liquid/parser"
-	"github.com/osteele/liquid/util"
+	"github.com/Funnelish/liquid/util"
+	"github.com/Funnelish/liquid/parser"
 )
 
 // Compile parses a source template. It returns an AST root, that can be evaluated.

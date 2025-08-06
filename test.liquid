@@ -48,3 +48,7 @@
 <!-- ❌ 'endif' is missing here and 'endcomment' is misplaced -->
 
 {{ user.email | format_email }}  <!-- ❌ possibly undefined filter -->
+
+{% if !relatedBlogPosts %}
+    <h1>No related blog posts </h1>
+{% endif %}

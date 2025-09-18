@@ -31,18 +31,18 @@ func Render(node Node, w io.Writer, vars map[string]any, c Config) Error {
 	defer func() {
 		if r := recover(); r != nil {
 			safeMsg := template.HTMLEscapeString(fmt.Sprint(r))
-			io.WriteString(&tw, fmt.Sprintf("[Liquid error: %s]", safeMsg))
+			io.WriteString(&tw, fmt.Sprintf(`<span class="liquid-error hidden">%s</span>`, safeMsg))
 		}
 	}()
 
 	if err := node.render(&tw, newNodeContext(vars, c)); err != nil {
 		safeMsg := template.HTMLEscapeString(err.Error())
-		io.WriteString(&tw, fmt.Sprintf("[Liquid error: %s]", safeMsg))
+		io.WriteString(&tw, fmt.Sprintf(`<span class="liquid-error hidden">%s</span>`, safeMsg))
 	}
 
 	if _, err := tw.Flush(); err != nil {
 		safeMsg := template.HTMLEscapeString(err.Error())
-		io.WriteString(&tw, fmt.Sprintf("[Liquid error: %s]", safeMsg))
+		io.WriteString(&tw, fmt.Sprintf(`<span class="liquid-error hidden">%s</span>`, safeMsg))
 	}
 	return nil
 }
@@ -75,19 +75,20 @@ func (c nodeContext) RenderSequence(w io.Writer, seq []Node) Error {
 			defer func() {
 				if r := recover(); r != nil {
 					safeMsg := template.HTMLEscapeString(fmt.Sprint(r))
-					io.WriteString(tw, fmt.Sprintf("[Liquid error: %s]", safeMsg))
+					io.WriteString(tw, fmt.Sprintf(`<span class="liquid-error hidden">%s</span>`, safeMsg))
 				}
 			}()
 
 			if err := n.render(tw, c); err != nil {
 				safeMsg := template.HTMLEscapeString(err.Error())
-				io.WriteString(tw, fmt.Sprintf("[Liquid error: %s]", safeMsg))
+				io.WriteString(tw, fmt.Sprintf(`<span class="liquid-error hidden">%s</span>`, safeMsg))
 			}
 		}(n)
 	}
 
 	if _, err := tw.Flush(); err != nil {
-		io.WriteString(tw, fmt.Sprintf("[%v]", err))
+		safeMsg := template.HTMLEscapeString(err.Error())
+		io.WriteString(tw, fmt.Sprintf(`<span class="liquid-error hidden">%s</span>`, safeMsg))
 	}
 	return nil
 }
@@ -134,19 +135,18 @@ func (n *ObjectNode) render(w *trimWriter, ctx nodeContext) Error {
 	if err != nil {
 		// Return error instead of panicking
 		safeMsg := template.HTMLEscapeString(err.Error())
-		io.WriteString(w, fmt.Sprintf("[Liquid error: %s]", safeMsg))
+		io.WriteString(w, fmt.Sprintf(`<span class="liquid-error hidden">%s</span>`, safeMsg))
 		return nil
 	}
 
 	if value == nil && ctx.config.StrictVariables {
-		safeMsg := template.HTMLEscapeString("undefined variable")
-		io.WriteString(w, fmt.Sprintf("[Liquid error: %s]", safeMsg))
+		io.WriteString(w, `<span class="liquid-error hidden">undefined variable</span>`)
 		return nil
 	}
 
 	if err := writeObject(w, value); err != nil {
 		safeMsg := template.HTMLEscapeString(err.Error())
-		io.WriteString(w, fmt.Sprintf("[Liquid error: %s]", safeMsg))
+		io.WriteString(w, fmt.Sprintf(`<span class="liquid-error hidden">%s</span>`, safeMsg))
 	}
 	return nil
 }

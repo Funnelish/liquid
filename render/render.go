@@ -2,8 +2,8 @@
 package render
 
 import (
-	"errors"
 	"fmt"
+	"html/template"
 	"io"
 	"reflect"
 	"time"
@@ -14,30 +14,80 @@ import (
 )
 
 // Render renders the render tree.
+//
+//	func Render(node Node, w io.Writer, vars map[string]any, c Config) Error {
+//		tw := trimWriter{w: w}
+//		if err := node.render(&tw, newNodeContext(vars, c)); err != nil {
+//			return err
+//		}
+//		if _, err := tw.Flush(); err != nil {
+//			panic(err)
+//		}
+//		return nil
+//	}
 func Render(node Node, w io.Writer, vars map[string]any, c Config) Error {
 	tw := trimWriter{w: w}
+
+	defer func() {
+		if r := recover(); r != nil {
+			safeMsg := template.HTMLEscapeString(fmt.Sprint(r))
+			io.WriteString(&tw, fmt.Sprintf("[Liquid error: %s]", safeMsg))
+		}
+	}()
+
 	if err := node.render(&tw, newNodeContext(vars, c)); err != nil {
-		return err
+		safeMsg := template.HTMLEscapeString(err.Error())
+		io.WriteString(&tw, fmt.Sprintf("[Liquid error: %s]", safeMsg))
 	}
+
 	if _, err := tw.Flush(); err != nil {
-		panic(err)
+		safeMsg := template.HTMLEscapeString(err.Error())
+		io.WriteString(&tw, fmt.Sprintf("[Liquid error: %s]", safeMsg))
 	}
 	return nil
 }
 
 // RenderSequence renders a sequence of nodes.
+//
+//	func (c nodeContext) RenderSequence(w io.Writer, seq []Node) Error {
+//		tw, ok := w.(*trimWriter)
+//		if !ok {
+//			tw = &trimWriter{w: w}
+//		}
+//		for _, n := range seq {
+//			if err := n.render(tw, c); err != nil {
+//				return err
+//			}
+//		}
+//		if _, err := tw.Flush(); err != nil {
+//			panic(err)
+//		}
+//		return nil
+//	}
 func (c nodeContext) RenderSequence(w io.Writer, seq []Node) Error {
 	tw, ok := w.(*trimWriter)
 	if !ok {
 		tw = &trimWriter{w: w}
 	}
+
 	for _, n := range seq {
-		if err := n.render(tw, c); err != nil {
-			return err
-		}
+		func(node Node) {
+			defer func() {
+				if r := recover(); r != nil {
+					safeMsg := template.HTMLEscapeString(fmt.Sprint(r))
+					io.WriteString(tw, fmt.Sprintf("[Liquid error: %s]", safeMsg))
+				}
+			}()
+
+			if err := n.render(tw, c); err != nil {
+				safeMsg := template.HTMLEscapeString(err.Error())
+				io.WriteString(tw, fmt.Sprintf("[Liquid error: %s]", safeMsg))
+			}
+		}(n)
 	}
+
 	if _, err := tw.Flush(); err != nil {
-		panic(err)
+		io.WriteString(tw, fmt.Sprintf("[%v]", err))
 	}
 	return nil
 }
@@ -66,16 +116,37 @@ func (n *RawNode) render(w *trimWriter, ctx nodeContext) Error {
 	return nil
 }
 
+//	func (n *ObjectNode) render(w *trimWriter, ctx nodeContext) Error {
+//		value, err := ctx.Evaluate(n.expr)
+//		if err != nil {
+//			return wrapRenderError(err, n)
+//		}
+//		if value == nil && ctx.config.StrictVariables {
+//			return wrapRenderError(errors.New("undefined variable"), n)
+//		}
+//		if err := wrapRenderError(writeObject(w, value), n); err != nil {
+//			return err
+//		}
+//		return nil
+//	}
 func (n *ObjectNode) render(w *trimWriter, ctx nodeContext) Error {
 	value, err := ctx.Evaluate(n.expr)
 	if err != nil {
-		return wrapRenderError(err, n)
+		// Return error instead of panicking
+		safeMsg := template.HTMLEscapeString(err.Error())
+		io.WriteString(w, fmt.Sprintf("[Liquid error: %s]", safeMsg))
+		return nil
 	}
+
 	if value == nil && ctx.config.StrictVariables {
-		return wrapRenderError(errors.New("undefined variable"), n)
+		safeMsg := template.HTMLEscapeString("undefined variable")
+		io.WriteString(w, fmt.Sprintf("[Liquid error: %s]", safeMsg))
+		return nil
 	}
-	if err := wrapRenderError(writeObject(w, value), n); err != nil {
-		return err
+
+	if err := writeObject(w, value); err != nil {
+		safeMsg := template.HTMLEscapeString(err.Error())
+		io.WriteString(w, fmt.Sprintf("[Liquid error: %s]", safeMsg))
 	}
 	return nil
 }
@@ -109,25 +180,60 @@ func (n *TrimNode) render(w *trimWriter, _ nodeContext) Error {
 }
 
 // writeObject writes a value used in an object node
+//
+//	func writeObject(w io.Writer, value any) error {
+//		value = values.ToLiquid(value)
+//		if value == nil {
+//			return nil
+//		}
+//		switch value := value.(type) {
+//		case time.Time:
+//			_, err := io.WriteString(w, value.Format("2006-01-02 15:04:05 -0700"))
+//			return err
+//		case []byte:
+//			_, err := w.Write(value)
+//			return err
+//			// there used be a case on fmt.Stringer here, but fmt.Sprint produces better results than obj.Write
+//			// for instances of error and *string
+//		}
+//		rt := reflect.ValueOf(value)
+//		switch rt.Kind() {
+//		case reflect.Array, reflect.Slice:
+//			for i := range rt.Len() {
+//				item := rt.Index(i)
+//				if item.IsValid() {
+//					if err := writeObject(w, item.Interface()); err != nil {
+//						return err
+//					}
+//				}
+//			}
+//			return nil
+//		case reflect.Ptr:
+//			return writeObject(w, reflect.ValueOf(value).Elem())
+//		default:
+//			_, err := io.WriteString(w, fmt.Sprint(value))
+//			return err
+//		}
+//	}
 func writeObject(w io.Writer, value any) error {
 	value = values.ToLiquid(value)
 	if value == nil {
 		return nil
 	}
-	switch value := value.(type) {
+
+	switch v := value.(type) {
 	case time.Time:
-		_, err := io.WriteString(w, value.Format("2006-01-02 15:04:05 -0700"))
+		_, err := io.WriteString(w, v.Format("2006-01-02 15:04:05 -0700"))
 		return err
 	case []byte:
-		_, err := w.Write(value)
+		_, err := w.Write(v)
 		return err
-		// there used be a case on fmt.Stringer here, but fmt.Sprint produces better results than obj.Write
-		// for instances of error and *string
 	}
+
 	rt := reflect.ValueOf(value)
 	switch rt.Kind() {
 	case reflect.Array, reflect.Slice:
-		for i := range rt.Len() {
+		for i := 0; i < rt.Len(); i++ {
 			item := rt.Index(i)
 			if item.IsValid() {
 				if err := writeObject(w, item.Interface()); err != nil {
@@ -137,7 +243,7 @@ func writeObject(w io.Writer, value any) error {
 		}
 		return nil
 	case reflect.Ptr:
-		return writeObject(w, reflect.ValueOf(value).Elem())
+		return writeObject(w, rt.Elem().Interface())
 	default:
 		_, err := io.WriteString(w, fmt.Sprint(value))
 		return err

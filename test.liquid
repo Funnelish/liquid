@@ -49,6 +49,8 @@
 
 {{ user.email | format_email }}  <!-- ❌ possibly undefined filter -->
 
+{{ "March 14, 2016" | date: "%b %d, %y" }} {{ "Mon Jan 2 15:04:05 MST" | date: "%Y-%m-%d %H:%M" }} now: {{ "now" | date: "%Y-%m-%d %H:%M" }}
+
 {% if !relatedBlogPosts %}
     <h1>No related blog posts </h1>
 {% endif %}

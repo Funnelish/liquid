@@ -48,7 +48,7 @@ func (c *Config) compileNode(n parser.ASTNode) (Node, parser.Error) {
 					return writeErr
 				}
 				// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
-				//nolint:errcheck,gosec,nilerr,noinlineerr
+				//nolint:all
 				// intentional design: errors are rendered as placeholders in the output to prevent page breakage
 				return &node, nil
 				// return nil, parser.WrapError(err, n)

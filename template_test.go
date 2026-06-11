@@ -112,7 +112,7 @@ func TestTemplate_Render_race(t *testing.T) {
 			// Test updated due to renderer change: errors are no longer returned during rendering,
 			// and are embedded in output as placeholders, so this test now validates successful execution only.
 			assert.NoError(t, err)
-			assert.Equal(t, paths[i], err.Path())
+			// assert.Equal(t, paths[i], err.Path())
 		}(i)
 	}
 	wg2.Wait()

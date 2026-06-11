@@ -30,24 +30,16 @@ func TestCall(t *testing.T) {
 
 	// extra arguments (non variadic)
 	_, err = Call(reflect.ValueOf(fn), []any{5, 10, 20})
-	// require.Error(t, err)
-
-	// Test updated due to renderer change: errors are no longer returned during rendering,
-	// and are embedded in output as placeholders, so this test now validates successful execution only.
-	require.NoError(t, err)
-	// require.Contains(t, err.Error(), "wrong number of arguments")
-	// require.Contains(t, err.Error(), "given 3")
-	// require.Contains(t, err.Error(), "expected 2")
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "wrong number of arguments")
+	require.Contains(t, err.Error(), "given 3")
+	require.Contains(t, err.Error(), "expected 2")
 
 	// error return
 	fn2 := func(int) (int, error) { return 0, errors.New("expected error") }
 	_, err = Call(reflect.ValueOf(fn2), []any{2})
-	// require.Error(t, err)
-
-	// Test updated due to renderer change: errors are no longer returned during rendering,
-	// and are embedded in output as placeholders, so this test now validates successful execution only.
-	require.NoError(t, err)
-	// require.Contains(t, err.Error(), "expected error")
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "expected error")
 }
 
 func TestCall_optional(t *testing.T) {

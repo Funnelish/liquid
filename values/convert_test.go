@@ -121,14 +121,10 @@ func TestConvert_errors(t *testing.T) {
 			name := fmt.Sprintf("Convert %#v -> %v", test.value, typ)
 			_, err := Convert(test.value, typ)
 
-			// require.Errorf(t, err, name)
-
-			// Test updated due to renderer change: errors are no longer returned during rendering,
-			// and are embedded in output as placeholders, so this test now validates successful execution only.
-			require.NoErrorf(t, err, name)
-			// for _, expected := range test.expected {
-			// 	require.Containsf(t, err.Error(), expected, name)
-			// }
+			require.Errorf(t, err, name)
+			for _, expected := range test.expected {
+				require.Containsf(t, err.Error(), expected, name)
+			}
 		})
 	}
 }

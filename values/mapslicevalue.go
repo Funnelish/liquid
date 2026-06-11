@@ -5,8 +5,10 @@ import (
 )
 
 type mapSliceValue struct {
-	slice yaml.MapSlice
+	// fixed golint warning
+	// https://github.com/Funnelish/liquid/actions/runs/27338369603/job/80768406267?pr=9
 	valueEmbed
+	slice yaml.MapSlice
 }
 
 // func (v mapSliceValue) Equal(o Value) bool     { return v.slice == o.Interface() }

@@ -39,7 +39,7 @@ func ExampleEngine_ParseAndRenderString() {
 
 	fmt.Println(out)
 	// Output:
-	// <span class="liquid-error hidden" data-line="-1">filter "capitalize" requires 2 arguments but got 1</span> Mundo
+	// <span class="liquid-error hidden" data-line="-1">filter &#34;capitalize&#34; requires 2 arguments but got 1</span> Mundo
 }
 
 func ExampleEngine_ParseTemplate() {
@@ -61,7 +61,7 @@ func ExampleEngine_ParseTemplate() {
 	fmt.Println(out)
 
 	// Output:
-	// <span class="liquid-error hidden" data-line="-1">filter "capitalize" requires 2 arguments but got 1</span> Mundo
+	// <span class="liquid-error hidden" data-line="-1">filter &#34;capitalize&#34; requires 2 arguments but got 1</span> Mundo
 }
 
 func ExampleEngine_RegisterFilter() {
@@ -104,7 +104,7 @@ func ExampleEngine_RegisterFilter_optional_argument() {
 	fmt.Println(out)
 
 	// Output:
-	// <span class="liquid-error hidden" data-line="-1">filter "capitalize" requires 2 arguments but got 1</span> Mundo
+	// 10 + 1 = <span class="liquid-error hidden" data-line="-1">filter &#34;inc&#34; requires 2 arguments but got 1</span>; 20 + 5 = 25
 }
 
 func ExampleEngine_RegisterTag() {

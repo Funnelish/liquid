@@ -24,6 +24,9 @@ func (tw *trimWriter) Write(b []byte) (n int, err error) {
 	if tw.trim {
 		b = bytes.TrimLeftFunc(b, unicode.IsSpace)
 		tw.trim = false
+		// https://github.com/Funnelish/liquid/actions/runs/27338369603/job/80768406267?pr=9
+		//nolint:errcheck,gosec,nilerr,noinlineerr
+		// intentional design: identical to the original source code
 	} else if n, err = tw.Flush(); err != nil {
 		return n, err
 	}

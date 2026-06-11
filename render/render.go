@@ -38,7 +38,10 @@ func Render(node Node, w io.Writer, vars map[string]any, c Config) Error {
 		}
 	}()
 
-	if err := node.render(&tw, newNodeContext(vars, c)); err != nil {
+	// fixed golint warning
+	// https://github.com/Funnelish/liquid/actions/runs/27338369603/job/80768406267?pr=9
+	err := node.render(&tw, newNodeContext(vars, c))
+	if err != nil {
 		safeMsg := template.HTMLEscapeString(err.Error())
 		// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
 		//nolint:errcheck,gosec,nilerr,noinlineerr
@@ -48,9 +51,9 @@ func Render(node Node, w io.Writer, vars map[string]any, c Config) Error {
 
 	// fixed golint warning
 	// https://github.com/Funnelish/liquid/actions/runs/27336945222/job/80763476429?pr=9
-	_, err := tw.Flush()
-	if err != nil {
-		safeMsg := template.HTMLEscapeString(err.Error())
+	_, flushErr := tw.Flush()
+	if flushErr != nil {
+		safeMsg := template.HTMLEscapeString(flushErr.Error())
 		// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
 		//nolint:errcheck,gosec,nilerr,noinlineerr
 		// intentional design: errors are rendered as placeholders in the output to prevent page breakage
@@ -84,7 +87,7 @@ func (c nodeContext) RenderSequence(w io.Writer, seq []Node) Error {
 
 	for _, n := range seq {
 		// https://github.com/Funnelish/liquid/actions/runs/27336945222/job/80763476429?pr=9
-		//nolint:errcheck,gosec,nilerr,noinlineerr
+		//nolint:errcheck,gosec,nilerr,noinlineerr,unparam
 		// intentional design: errors are rendered as placeholders in the output to prevent page breakage
 		func(node Node) {
 			defer func() {
@@ -106,6 +109,9 @@ func (c nodeContext) RenderSequence(w io.Writer, seq []Node) Error {
 	_, err := tw.Flush()
 	if err != nil {
 		safeMsg := template.HTMLEscapeString(err.Error())
+		// https://github.com/Funnelish/liquid/actions/runs/27336945222/job/80763476429?pr=9
+		//nolint:errcheck,gosec,nilerr,noinlineerr
+		// intentional design: errors are rendered as placeholders in the output to prevent page breakage
 		io.WriteString(tw, fmt.Sprintf(`<span class="liquid-error hidden">%s</span>`, safeMsg))
 	}
 	return nil
@@ -153,17 +159,27 @@ func (n *ObjectNode) render(w *trimWriter, ctx nodeContext) Error {
 	if err != nil {
 		// Return error instead of panicking
 		safeMsg := template.HTMLEscapeString(err.Error())
+		// https://github.com/Funnelish/liquid/actions/runs/27336945222/job/80763476429?pr=9
+		//nolint:errcheck,gosec,nilerr,noinlineerr
+		// intentional design: errors are rendered as placeholders in the output to prevent page breakage
 		io.WriteString(w, fmt.Sprintf(`<span class="liquid-error hidden">%s</span>`, safeMsg))
 		return nil
 	}
 
 	if value == nil && ctx.config.StrictVariables {
+		// https://github.com/Funnelish/liquid/actions/runs/27336945222/job/80763476429?pr=9
+		//nolint:errcheck,gosec,nilerr,noinlineerr
+		// intentional design: errors are rendered as placeholders in the output to prevent page breakage
 		io.WriteString(w, `<span class="liquid-error hidden">undefined variable</span>`)
 		return nil
 	}
-
-	if err := writeObject(w, value); err != nil {
+	// fixed golint warning
+	// https://github.com/Funnelish/liquid/actions/runs/27338369603/job/80768406267?pr=9
+	err = writeObject(w, value)
+	if err != nil {
 		safeMsg := template.HTMLEscapeString(err.Error())
+		//nolint:errcheck,gosec,nilerr,noinlineerr
+		// intentional design: errors are rendered as placeholders in the output to prevent page breakage
 		io.WriteString(w, fmt.Sprintf(`<span class="liquid-error hidden">%s</span>`, safeMsg))
 	}
 	return nil

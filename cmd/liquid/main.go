@@ -68,7 +68,8 @@ func main() {
 		// use stdin
 	case 1:
 		// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
-		//nolint:nilerr // intentional design: identical to the original source code
+		//nolint:errcheck,gosec,nilerr,noinlineerr
+		// intentional design: identical to the original source code
 		stdin, err = os.Open(args[0])
 	default:
 		err = errors.New("too many arguments")

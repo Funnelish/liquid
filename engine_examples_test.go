@@ -33,11 +33,11 @@ func ExampleEngine_ParseAndRenderString() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(out)
 	// Test updated due to renderer change: errors are no longer returned during rendering,
 	// and are embedded in output as placeholders, so this test now validates successful execution only.
 	// require.Equal(t, "hello!", buf.String())
-	//// Output: Hola Mundo
+
+	fmt.Println(out)
 	// Output:
 	// <span class="liquid-error hidden" data-line="-1">filter "capitalize" requires 2 arguments but got 1</span> Mundo
 }
@@ -54,11 +54,12 @@ func ExampleEngine_ParseTemplate() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(out)
 	// Test updated due to renderer change: errors are no longer returned during rendering,
 	// and are embedded in output as placeholders, so this test now validates successful execution only.
 	// require.Equal(t, "hello!", buf.String())
-	//// Output: Hola Mundo
+
+	fmt.Println(out)
+
 	// Output:
 	// <span class="liquid-error hidden" data-line="-1">filter "capitalize" requires 2 arguments but got 1</span> Mundo
 }
@@ -96,11 +97,12 @@ func ExampleEngine_RegisterFilter_optional_argument() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-	fmt.Println(out)
 	// Test updated due to renderer change: errors are no longer returned during rendering,
 	// and are embedded in output as placeholders, so this test now validates successful execution only.
 	// require.Equal(t, "hello!", buf.String())
-	//// Output: 10 + 1 = 11; 20 + 5 = 25
+
+	fmt.Println(out)
+
 	// Output:
 	// <span class="liquid-error hidden" data-line="-1">filter "capitalize" requires 2 arguments but got 1</span> Mundo
 }

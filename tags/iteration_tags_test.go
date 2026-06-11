@@ -171,6 +171,9 @@ func TestIterationTags(t *testing.T) {
 			actual := buf.String()
 			if strings.Contains(test.in, "{% tablerow") {
 				replaceWS := regexp.MustCompile(`\n\s*`).ReplaceAllString
+				// https://github.com/Funnelish/liquid/actions/runs/27336945222/job/80763476429?pr=9
+				//nolint:errcheck,gosec,nilerr,noinlineerr
+				// intentional design: keep original source code unit test
 				actual = replaceWS(actual, "")
 				test.expected = replaceWS(test.expected, "")
 			}

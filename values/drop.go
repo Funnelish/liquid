@@ -19,9 +19,11 @@ func ToLiquid(value any) any {
 }
 
 type dropWrapper struct {
+	// fixed golint warning
+	// https://github.com/Funnelish/liquid/actions/runs/27336945222/job/80763476429?pr=9
+	sync.Once
 	d drop
 	v Value
-	sync.Once
 }
 
 func (w *dropWrapper) Resolve() Value {

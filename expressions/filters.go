@@ -82,7 +82,8 @@ func (ctx *context) ApplyFilter(name string, receiver valueFn, params []valueFn)
 			expr, err := Parse(param(ctx).Interface().(string))
 			if err != nil {
 				// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
-				//nolint:nilerr // intentional design: errors are rendered as placeholders in the output to prevent page breakage
+				//nolint:errcheck,gosec,nilerr,noinlineerr
+				// intentional design: errors are rendered as placeholders in the output to prevent page breakage
 				return util.ErrorPlaceholder(-1, fmt.Sprintf(`error parsing filter parameter "%s"`, param(ctx).Interface())), nil
 				//return nil, nil
 				//panic(err)

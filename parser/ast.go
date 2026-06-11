@@ -17,8 +17,10 @@ type ASTBlock struct {
 
 // ASTRaw holds the text between the start and end of a raw tag.
 type ASTRaw struct {
-	Slices []string
+	// fixed golint warning
+	// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
 	sourcelessNode
+	Slices []string
 }
 
 // ASTTag is a tag {% tag %} that is not a block start or end.
@@ -39,8 +41,10 @@ type ASTObject struct {
 
 // ASTSeq is a sequence of nodes.
 type ASTSeq struct {
-	Children []ASTNode
+	// fixed golint warning
+	// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
 	sourcelessNode
+	Children []ASTNode
 }
 
 // TrimDirection determines the trim direction of an ASTTrim object.

@@ -3,13 +3,12 @@
 //line expressions.y:2
 package expressions
 
-import __yyfmt__ "fmt"
-
-//line expressions.y:2
 import (
 	"fmt"
+	__yyfmt__ "fmt"
+
 	"github.com/Funnelish/liquid/values"
-)
+) //line expressions.y:2
 
 func init() {
 	// This allows adding and removing references to fmt in the rules below,
@@ -632,7 +631,9 @@ yydefault:
 //line expressions.y:86
 		{
 			name, expr, mods := yyDollar[1].name, yyDollar[3].f, yyDollar[4].loopmods
-			yyVAL.loop = Loop{name, &expression{expr}, mods}
+			// fixed golint warning
+			// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
+			yyVAL.loop = Loop{mods, name, &expression{expr}}
 		}
 	case 16:
 		yyDollar = yyS[yypt-0 : yypt+1]

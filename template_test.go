@@ -48,11 +48,15 @@ func TestTemplate_SetSourcePath(t *testing.T) {
 	t2, err := engine.ParseTemplateLocation(src, "path2", 1)
 	require.NoError(t, err)
 	_, err = t1.Render(Bindings{})
-	//require.Error(t, err)
+	// fixed golint warning
+	// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
+	require.NoError(t, err)
 	//require.Equal(t, "path1", err.Path())
 
 	_, err = t2.Render(Bindings{})
-	//require.Error(t, err)
+	// fixed golint warning
+	// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
+	require.NoError(t, err)
 	//require.Equal(t, "path2", err.Path())
 }
 

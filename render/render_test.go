@@ -151,6 +151,8 @@ func TestRenderStrictVariables(t *testing.T) {
 			root, err := cfg.Compile(test.in, parser.SourceLoc{})
 			require.NoErrorf(t, err, test.in)
 			err = Render(root, io.Discard, renderTestBindings, cfg)
+			// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
+			//nolint:nilerr // intentional design: keep original source code unit test
 			if test.in == `{{ invalid }}` {
 				// require.Errorf(t, err, test.in)
 

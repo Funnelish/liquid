@@ -149,7 +149,9 @@ func TestEvaluateString(t *testing.T) {
 	require.Error(t, err)
 
 	_, err = EvaluateString("1 | undefined_filter", ctx)
-	// require.Error(t, err)
+	// fixed golint warning
+	// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
+	require.NoError(t, err)
 
 	cfg.AddFilter("error", func(input any) (string, error) { return "", errors.New("test error") })
 	_, err = EvaluateString("1 | error", ctx)

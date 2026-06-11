@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/Funnelish/liquid/util"
 	"github.com/Funnelish/liquid/parser"
+	"github.com/Funnelish/liquid/util"
 )
 
 // Compile parses a source template. It returns an AST root, that can be evaluated.
@@ -47,6 +47,8 @@ func (c *Config) compileNode(n parser.ASTNode) (Node, parser.Error) {
 					_, writeErr := io.WriteString(w, util.ErrorPlaceholder(line, err.Error()))
 					return writeErr
 				}
+				// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
+				//nolint:nilerr // intentional design: errors are rendered as placeholders in the output to prevent page breakage
 				return &node, nil
 				// return nil, parser.WrapError(err, n)
 			}

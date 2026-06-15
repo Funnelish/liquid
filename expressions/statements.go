@@ -28,9 +28,11 @@ type Cycle struct {
 
 // A Loop is a parse of a {% loop %} statement
 type Loop struct {
+	// fixed golint warning
+	// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
+	loopModifiers
 	Variable string
 	Expr     Expression
-	loopModifiers
 }
 
 type loopModifiers struct {

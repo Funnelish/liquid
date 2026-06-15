@@ -24,8 +24,10 @@ type BlockNode struct {
 
 // RawNode holds the text between the start and end of a raw tag.
 type RawNode struct {
-	slices []string
+	// fixed golint warning
+	// https://github.com/Funnelish/liquid/actions/runs/27336945222/job/80763476429?pr=9
 	sourcelessNode
+	slices []string
 }
 
 // TagNode renders itself via a render function that is created during parsing.
@@ -47,8 +49,10 @@ type ObjectNode struct {
 
 // SeqNode is a sequence of nodes.
 type SeqNode struct {
-	Children []Node
+	// fixed golint warning
+	// https://github.com/Funnelish/liquid/actions/runs/27336945222/job/80763476429?pr=9
 	sourcelessNode
+	Children []Node
 }
 
 // TrimNode is a trim object.

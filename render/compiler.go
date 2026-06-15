@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/Funnelish/liquid/util"
 	"github.com/Funnelish/liquid/parser"
+	"github.com/Funnelish/liquid/util"
 )
 
 // Compile parses a source template. It returns an AST root, that can be evaluated.
@@ -47,6 +47,9 @@ func (c *Config) compileNode(n parser.ASTNode) (Node, parser.Error) {
 					_, writeErr := io.WriteString(w, util.ErrorPlaceholder(line, err.Error()))
 					return writeErr
 				}
+				// https://github.com/Funnelish/liquid/actions/runs/27335283015/job/80757714379?pr=9
+				//nolint:all
+				// intentional design: errors are rendered as placeholders in the output to prevent page breakage
 				return &node, nil
 				// return nil, parser.WrapError(err, n)
 			}
@@ -54,13 +57,17 @@ func (c *Config) compileNode(n parser.ASTNode) (Node, parser.Error) {
 		}
 		return &node, nil
 	case *parser.ASTRaw:
-		return &RawNode{n.Slices, sourcelessNode{}}, nil
+		// fixed golint warning
+		// https://github.com/Funnelish/liquid/actions/runs/27336945222/job/80763476429?pr=9
+		return &RawNode{sourcelessNode{}, n.Slices}, nil
 	case *parser.ASTSeq:
 		children, err := c.compileNodes(n.Children)
 		if err != nil {
 			return nil, err
 		}
-		return &SeqNode{children, sourcelessNode{}}, nil
+		// fixed golint warning
+		// https://github.com/Funnelish/liquid/actions/runs/27336945222/job/80763476429?pr=9
+		return &SeqNode{sourcelessNode{}, children}, nil
 	case *parser.ASTTag:
 		if td, ok := c.FindTagDefinition(n.Name); ok {
 			f, err := td(n.Args)

@@ -184,22 +184,30 @@ func (c tableRowDecorator) before(w io.Writer, i int) {
 	cols := int(c)
 	row, col := i/cols, i%cols
 	if col == 0 {
-		if _, err := fmt.Fprintf(w, `<tr class="row%d">`, row+1); err != nil {
+		// fixed golint warning
+		_, err := fmt.Fprintf(w, `<tr class="row%d">`, row+1)
+		if err != nil {
 			panic(err)
 		}
 	}
-	if _, err := fmt.Fprintf(w, `<td class="col%d">`, col+1); err != nil {
+	// fixed golint warning
+	_, err := fmt.Fprintf(w, `<td class="col%d">`, col+1)
+	if err != nil {
 		panic(err)
 	}
 }
 
 func (c tableRowDecorator) after(w io.Writer, i, l int) {
 	cols := int(c)
-	if _, err := io.WriteString(w, `</td>`); err != nil {
+	// fixed golint warning
+	_, err := io.WriteString(w, `</td>`)
+	if err != nil {
 		panic(err)
 	}
 	if (i+1)%cols == 0 || i+1 == l {
-		if _, err := io.WriteString(w, `</tr>`); err != nil {
+		// fixed golint warning
+		_, err := io.WriteString(w, `</tr>`)
+		if err != nil {
 			panic(err)
 		}
 	}

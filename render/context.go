@@ -172,7 +172,10 @@ func (c rendererContext) RenderFile(filename string, b map[string]any) (string, 
 		bindings[k] = v
 	}
 	buf := new(bytes.Buffer)
-	if err := Render(root, buf, bindings, c.ctx.config); err != nil {
+	// fixed golint warning
+	// https://github.com/Funnelish/liquid/actions/runs/27336945222/job/80763476429?pr=9
+	err = Render(root, buf, bindings, c.ctx.config)
+	if err != nil {
 		return "", err
 	}
 	return buf.String(), nil

@@ -120,6 +120,7 @@ func TestConvert_errors(t *testing.T) {
 			typ := reflect.TypeOf(test.proto)
 			name := fmt.Sprintf("Convert %#v -> %v", test.value, typ)
 			_, err := Convert(test.value, typ)
+
 			require.Errorf(t, err, name)
 			for _, expected := range test.expected {
 				require.Containsf(t, err.Error(), expected, name)

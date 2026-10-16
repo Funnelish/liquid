@@ -58,9 +58,11 @@ func (tl *FileTemplateStore) resolve(filename string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if r, err := filepath.EvalSymlinks(root); err == nil {
+	r, err := filepath.EvalSymlinks(root)
+	if err == nil {
 		root = r
 	}
+
 	// The include tag has already joined the name onto the including template's
 	// directory, so the name is resolved as given (relative to the working
 	// directory, like os.ReadFile) and then required to sit inside Root.
@@ -72,14 +74,17 @@ func (tl *FileTemplateStore) resolve(filename string) (string, error) {
 		return "", fmt.Errorf("include: template path %q is outside the template root", filename)
 	}
 	// Re-check after resolving symlinks, so a link inside root cannot point outside it.
-	if real, err := filepath.EvalSymlinks(candidate); err == nil {
-		if !within(root, real) {
+	resolved, err := filepath.EvalSymlinks(candidate)
+	if err == nil {
+		if !within(root, resolved) {
 			return "", fmt.Errorf("include: template path %q is outside the template root", filename)
 		}
-		candidate = real
+
+		candidate = resolved
 	} else if !os.IsNotExist(err) {
 		return "", err
 	}
+
 	return candidate, nil
 }
 

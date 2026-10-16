@@ -3,6 +3,7 @@ package tags
 import (
 	"bytes"
 	"io"
+	"os"
 	"strings"
 	"testing"
 
@@ -93,9 +94,11 @@ func TestIncludeTag_default_store_reads_nothing(t *testing.T) {
 	root, err := config.Compile(`{% include "include_target.html" %}`, loc)
 	require.NoError(t, err)
 	buf := new(bytes.Buffer)
+	// Render embeds errors in the output instead of returning them.
 	err = render.Render(root, buf, includeTestBindings, config)
-	require.Error(t, err)
-	require.Empty(t, strings.TrimSpace(buf.String()))
+	require.NoError(t, err)
+	require.Contains(t, buf.String(), `class="liquid-error hidden"`)
+	require.NotContains(t, buf.String(), "include target")
 }
 
 // The payload used against production: a traversal to the process environment.
@@ -118,9 +121,9 @@ func TestIncludeTag_rejects_traversal_and_absolute_paths(t *testing.T) {
 			require.NoError(t, err, tpl)
 			buf := new(bytes.Buffer)
 			err = render.Render(root, buf, includeTestBindings, config)
-			require.Error(t, err, tpl)
-			require.Empty(t, strings.TrimSpace(buf.String()), tpl)
-			require.NotContains(t, err.Error(), "package tags", tpl)
+			require.NoError(t, err, tpl)
+			require.Contains(t, buf.String(), `class="liquid-error hidden"`, tpl)
+			require.NotContains(t, buf.String(), "package tags", tpl)
 		}
 	}
 }

@@ -168,7 +168,13 @@ The template store allows for usage of varying template storage implementations 
     engine.RegisterTemplateStore()
     ```
 
-`FileTemplateStore` is the default mechanism for backwards compatibility.
+The default store is `NoTemplateStore`, which never reads the filesystem: `{% include %}` can only render templates registered with `engine.ParseTemplateAndCache`. To include files from disk, register a `FileTemplateStore` confined to a directory:
+
+```go
+engine.RegisterTemplateStore(render.NewFileTemplateStore("templates"))
+```
+
+`FileTemplateStore` only reads files inside its root; a symlink that points outside the root is rejected. Include names are joined onto the directory of the including template (the path given to `ParseTemplateLocation`), not onto the root; templates parsed without a path resolve against the working directory. With any store, `{% include %}` rejects absolute paths and `..` segments.
 
 Refer to [example](./docs/TemplateStoreExample.md) for an example implementation.
 

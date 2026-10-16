@@ -9,6 +9,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/Funnelish/liquid/render"
 	"github.com/stretchr/testify/require"
 )
 
@@ -171,6 +172,8 @@ func TestEngine_ParseTemplateAndCache(t *testing.T) {
 
 	// Cache the first
 	eng := NewEngine()
+	// include is disabled by default now; opt in so the cache fallback applies.
+	eng.RegisterTemplateStore(&render.FileTemplateStore{})
 	_, err := eng.ParseTemplateAndCache(templateA, "template_a.html", 1)
 	require.NoError(t, err)
 

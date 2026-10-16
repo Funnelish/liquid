@@ -151,13 +151,16 @@ func (c rendererContext) RenderChildren(w io.Writer) Error {
 func (c rendererContext) RenderFile(filename string, b map[string]any) (string, error) {
 	source, err := c.ctx.config.TemplateStore.ReadTemplate(filename)
 	if err != nil && os.IsNotExist(err) {
-		// Is it cached?
+		// A configured file store reported the template missing: fall back to an
+		// explicitly cached template if one was registered.
 		if cval, ok := c.ctx.config.Cache[filename]; ok {
 			source = cval
 		} else {
 			return "", err
 		}
 	} else if err != nil {
+		// Any other error (including the default DeniedTemplateStore) disables the
+		// include outright -- the cache is not a bypass.
 		return "", err
 	}
 	root, err := c.ctx.config.Compile(string(source), c.node.SourceLoc)

@@ -18,6 +18,7 @@ var includeTestBindings = map[string]any{
 
 func TestIncludeTag(t *testing.T) {
 	config := render.NewConfig()
+	config.TemplateStore = &render.FileTemplateStore{} // opt in to disk reads for this test
 	loc := parser.SourceLoc{Pathname: "testdata/include_source.html", LineNo: 1}
 	AddStandardTags(config)
 
@@ -51,6 +52,7 @@ func TestIncludeTag(t *testing.T) {
 
 func TestIncludeTag_file_not_found_error(t *testing.T) {
 	config := render.NewConfig()
+	config.TemplateStore = &render.FileTemplateStore{} // opt in to disk reads for this test
 	loc := parser.SourceLoc{Pathname: "testdata/include_source.html", LineNo: 1}
 	AddStandardTags(config)
 
@@ -68,6 +70,7 @@ func TestIncludeTag_file_not_found_error(t *testing.T) {
 
 func TestIncludeTag_cached_value_handling(t *testing.T) {
 	config := render.NewConfig()
+	config.TemplateStore = &render.FileTemplateStore{} // opt in: cache fallback applies only with a real store
 	// missing-file.html does not exist in the testdata directory.
 	config.Cache["testdata/missing-file.html"] = []byte("include-content")
 	config.Cache["testdata\\missing-file.html"] = []byte("include-content")

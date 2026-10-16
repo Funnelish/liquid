@@ -19,6 +19,7 @@ var includeTestBindings = map[string]any{
 
 func TestIncludeTag(t *testing.T) {
 	config := render.NewConfig()
+	config.TemplateStore = render.NewFileTemplateStore("testdata")
 	loc := parser.SourceLoc{Pathname: "testdata/include_source.html", LineNo: 1}
 	AddStandardTags(config)
 
@@ -48,6 +49,7 @@ func TestIncludeTag(t *testing.T) {
 
 func TestIncludeTag_file_not_found_error(t *testing.T) {
 	config := render.NewConfig()
+	config.TemplateStore = render.NewFileTemplateStore("testdata")
 	loc := parser.SourceLoc{Pathname: "testdata/include_source.html", LineNo: 1}
 	AddStandardTags(config)
 
@@ -73,4 +75,67 @@ func TestIncludeTag_cached_value_handling(t *testing.T) {
 	err = render.Render(root, buf, includeTestBindings, config)
 	require.NoError(t, err)
 	require.Equal(t, "include-content", strings.TrimSpace(buf.String()))
+}
+
+// The default engine must never read the filesystem, whatever the include argument.
+func TestIncludeTag_default_store_reads_nothing(t *testing.T) {
+	config := render.NewConfig()
+	loc := parser.SourceLoc{Pathname: "testdata/include_source.html", LineNo: 1}
+	AddStandardTags(config)
+
+	root, err := config.Compile(`{% include "include_target.html" %}`, loc)
+	require.NoError(t, err)
+	buf := new(bytes.Buffer)
+	err = render.Render(root, buf, includeTestBindings, config)
+	require.Error(t, err)
+	require.Empty(t, strings.TrimSpace(buf.String()))
+}
+
+// The payload used against production: a traversal to the process environment.
+func TestIncludeTag_rejects_traversal_and_absolute_paths(t *testing.T) {
+	for _, store := range []render.TemplateStore{render.NoTemplateStore{}, render.NewFileTemplateStore("testdata")} {
+		config := render.NewConfig()
+		config.TemplateStore = store
+		loc := parser.SourceLoc{Pathname: "testdata/include_source.html", LineNo: 1}
+		AddStandardTags(config)
+
+		for _, tpl := range []string{
+			`{% include "../../../../proc/self/environ" %}`,
+			`{% include "../include_tag.go" %}`,
+			`{% include "sub/../../include_tag.go" %}`,
+			`{% include "/etc/hostname" %}`,
+			`{% include "..\\include_tag.go" %}`,
+			`{% include "" %}`,
+		} {
+			root, err := config.Compile(tpl, loc)
+			require.NoError(t, err, tpl)
+			buf := new(bytes.Buffer)
+			err = render.Render(root, buf, includeTestBindings, config)
+			require.Error(t, err, tpl)
+			require.Empty(t, strings.TrimSpace(buf.String()), tpl)
+			require.NotContains(t, err.Error(), "package tags", tpl)
+		}
+	}
+}
+
+func TestFileTemplateStore_confined_to_root(t *testing.T) {
+	store := render.NewFileTemplateStore("testdata")
+
+	_, err := store.ReadTemplate("testdata/include_target.html")
+	require.NoError(t, err)
+
+	for _, name := range []string{
+		"../include_tag.go",
+		"testdata/../include_tag.go",
+		"/etc/hostname",
+		"../../../../proc/self/environ",
+	} {
+		_, err := store.ReadTemplate(name)
+		require.Error(t, err, name)
+	}
+
+	// An empty root reads nothing, even for a file that exists.
+	_, err = render.NewFileTemplateStore("").ReadTemplate("testdata/include_target.html")
+	require.Error(t, err)
+	require.True(t, os.IsNotExist(err))
 }

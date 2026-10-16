@@ -19,7 +19,9 @@ type grammar struct {
 }
 
 // NewConfig creates a new Settings.
-// TemplateStore is initialized to a FileTemplateStore for backwards compatibility
+//
+// TemplateStore defaults to NoTemplateStore: {% include %} cannot read the
+// filesystem until the application registers a store (see FileTemplateStore).
 func NewConfig() Config {
 	g := grammar{
 		tags:      map[string]TagCompiler{},
@@ -29,6 +31,6 @@ func NewConfig() Config {
 		Config:        parser.NewConfig(g),
 		grammar:       g,
 		Cache:         map[string][]byte{},
-		TemplateStore: &FileTemplateStore{},
+		TemplateStore: NoTemplateStore{},
 	}
 }

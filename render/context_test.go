@@ -104,6 +104,7 @@ var contextTestBindings = map[string]any{
 
 func TestContext(t *testing.T) {
 	cfg := NewConfig()
+	cfg.TemplateStore = NewFileTemplateStore("testdata")
 	addContextTestTags(cfg)
 	for i, test := range contextTests {
 		t.Run(fmt.Sprintf("%02d", i+1), func(t *testing.T) {
@@ -119,6 +120,7 @@ func TestContext(t *testing.T) {
 
 func TestContext_errors(t *testing.T) {
 	cfg := NewConfig()
+	cfg.TemplateStore = NewFileTemplateStore("testdata")
 	addContextTestTags(cfg)
 	for i, test := range contextErrorTests {
 		t.Run(fmt.Sprintf("%02d", i+1), func(t *testing.T) {
@@ -138,6 +140,7 @@ func TestContext_file_not_found_error(t *testing.T) {
 	//
 	// Also see TestIncludeTag_file_not_found_error.
 	cfg := NewConfig()
+	cfg.TemplateStore = NewFileTemplateStore("testdata")
 	addContextTestTags(cfg)
 	root, err := cfg.Compile(`{% test_render_file testdata/missing_file %}`, parser.SourceLoc{})
 	require.NoError(t, err)
